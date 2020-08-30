@@ -2,7 +2,7 @@
 
 In this assignment, you will build a web application that scrapes various websites for data related to the Mission to Mars and displays the information in a single HTML page. The following outlines what you need to do.
 
-![alt test](https://github.com/jeffhoffmanmba/python-challenge/blob/master/PyBank/Resources/revenue-per-lead.png)
+![alt test](https://github.com/jeffhoffmanmba/web-scraping-challenge/blob/master/Missions_to_Mars/Images/PIA15883_hires.jpg)
 
 ### Before You Begin
 
