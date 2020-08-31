@@ -2,7 +2,7 @@
 import pymongo
 import time
 from splinter import Browser
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup as bs
 import pandas as pd
 
 def init_browser():
@@ -17,15 +17,14 @@ def scrape():
     time.sleep(1)
    
     html = browser.html
-    soup = BeautifulSoup(html, "html.parser")
+    soup = bs(html, "html.parser")
 
     title_results = soup.find_all('div', class_='content_title')
-    news_p_results = soup.find_all('div', class_='article_teaser_body')
+    teaser_results = soup.find_all('div', class_='article_teaser_body')
 
 #Extract first title and paragraph, and assign to variable
-    news_title1 = title_results[0].text
-    news_p1 = news_p_results[0].text
-
+    news_title = title_results[0].text
+    teaser = teaser_results[0].text
 
 # JPL Mars Space Images - Featured Image
     jpl_url = "https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars"
@@ -37,7 +36,7 @@ def scrape():
     browser.click_link_by_partial_text('more info')
 
     html = browser.html
-    soup = BeautifulSoup(html, "html.parser")
+    soup = bs(html, "html.parser")
 
 # Search for image source
     results = soup.find_all('figure', class_='lede')
@@ -48,10 +47,10 @@ def scrape():
 # Mars facts
     tables = pd.read_html('https://space-facts.com/mars/')
 
-    # Take second table for Mars facts
+    # Take 1st table for Mars facts
     df = tables[0]
 
-    # Rename columns and set index
+    # Rename columns
     df.columns=['description', 'value']
     
     # Convert table to html
@@ -60,10 +59,11 @@ def scrape():
 # Mars Hemispheres
     browser.visit('https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars')
 
+    time.sleep(1)
     html = browser.html
 
 # Parse HTML with Beautiful Soup
-    soup = BeautifulSoup(html, "html.parser")
+    soup = bs(html, "html.parser")
 
     hemi_names = []
 
@@ -75,17 +75,7 @@ def scrape():
     for name in hemispheres:
         hemi_names.append(name.text)
 
-    hems_url = soup.find_all("div", class_="item")
-
-# Create empty list for each Hemisphere URL.
-    hemis_url = []
-
-    for hem in hems_url:
-        hem_url = hem.find('a')['href']
-        hemis_url.append(hem_url)
-
-    thumbnail_results = results[0].find_all('a')
-    
+    thumbnail_results = results[0].find_all('a')    
     thumbnail_links = []
 
     for thumbnail in thumbnail_results:
@@ -99,7 +89,6 @@ def scrape():
         # Append list with links
             thumbnail_links.append(thumbnail_url)
 
-
     full_imgs = []
 
     for url in thumbnail_links:
@@ -108,7 +97,7 @@ def scrape():
         browser.visit(url)
     
         html = browser.html
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = bs(html, 'html.parser')
     
     # Scrape each page for the relative image path
         results = soup.find_all('img', class_='wide-image')
@@ -143,9 +132,8 @@ def scrape():
     # Store data in a dictionary
     mars_data = {
         "news_title": news_title,
-        "news_paragraph": news_p,
+        "news_paragraph": teaser,
         "featured_image": featured_img,
-        "weather": mars_weather,
         "mars_facts": mars_facts_table,
         "hemispheres": hemisphere_image_urls
     }
